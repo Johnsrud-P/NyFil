@@ -6,10 +6,15 @@ app="$1"
 python_runtime="$2"
 extension="$app/Contents/PlugIns/NyfilFinder.appex"
 
-# Ett felles kompilatormellomlager i prosjektet. Det gjenbrukes av alle bygg,
-# så det hoper seg ikke opp. Mappen kan trygt slettes og lages på nytt.
-export CLANG_MODULE_CACHE_PATH="$(dirname "$src")/.cache/ModuleCache"
+# Kompilatormellomlageret legges i prosjektet mens bygget kjører og slettes
+# etterpå, også hvis bygget feiler. Det sparer rundt 500 MB, men gjør hvert bygg
+# tregere (rundt 40 sekunder). Sett NYFIL_BEHOLD_MELLOMLAGER=1 for å beholde det.
+cache_root="$(dirname "$src")/.cache"
+export CLANG_MODULE_CACHE_PATH="$cache_root/ModuleCache"
 mkdir -p "$CLANG_MODULE_CACHE_PATH"
+if [ "${NYFIL_BEHOLD_MELLOMLAGER:-0}" != "1" ]; then
+    trap 'rm -rf "$cache_root"' EXIT
+fi
 "$python_runtime" "$src/prepare.py" "$app"
 xcrun swift "$src/Icon.swift" "$(dirname "$app")/Nyfil.iconset"
 "$python_runtime" "$src/package_icon.py" "$(dirname "$app")/Nyfil.iconset" "$app/Contents/Resources/Nyfil.icns"
