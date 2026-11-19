@@ -17,8 +17,8 @@ for directory in (app / "MacOS", app / "Resources", extension / "MacOS", resourc
 
 base = {
     "CFBundleDevelopmentRegion": "nb",
-    "CFBundleShortVersionString": "1.2",
-    "CFBundleVersion": "3",
+    "CFBundleShortVersionString": "1.2.1",
+    "CFBundleVersion": "4",
     "CFBundleName": "NyFil",
     "CFBundleDisplayName": "NyFil",
     "LSMinimumSystemVersion": "13.0",
@@ -31,6 +31,10 @@ with (app / "Info.plist").open("wb") as plist:
         "CFBundlePackageType": "APPL",
         "CFBundleIconFile": "Nyfil",
         "LSApplicationCategoryType": "public.app-category.utilities",
+        "CFBundleURLTypes": [{
+            "CFBundleURLName": "no.nyfil.mac",
+            "CFBundleURLSchemes": ["nyfil"],
+        }],
         "NSDocumentsFolderUsageDescription": "NyFil oppretter og flytter filer i Dokumenter når du bruker NyFil i Finder.",
         "NSDownloadsFolderUsageDescription": "NyFil oppretter og flytter filer i Nedlastinger når du bruker NyFil i Finder.",
         "NSDesktopFolderUsageDescription": "NyFil oppretter og flytter filer på Skrivebord når du bruker NyFil i Finder.",

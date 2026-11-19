@@ -20,7 +20,7 @@ mkdir -p "$parts"
 for arch in arm64 x86_64; do
     target="$arch-apple-macos13.0"
     xcrun swiftc -O -parse-as-library -target "$target" -module-name Nyfil \
-        "$src/Nyfil.swift" -o "$parts/Nyfil-$arch"
+        "$src/Nyfil.swift" "$src/FileMove.swift" -o "$parts/Nyfil-$arch"
     xcrun swiftc -O -parse-as-library -target "$target" -module-name NyfilFinder \
         -Xlinker -e -Xlinker _NSExtensionMain \
         "$src/FinderExtension.swift" "$src/FileCreation.swift" "$src/FileMove.swift" -o "$parts/NyfilFinder-$arch"

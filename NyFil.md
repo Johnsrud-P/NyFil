@@ -4,16 +4,16 @@ NyFil er en lokal macOS-app med en Finder Sync-utvidelse. Høyreklikk i Finder o
 
 ## Prosjektfiler
 
-- `Kildekode/FinderExtension.swift` bygger Finder-menyen, viser navnedialogen for Excel og mappevelgeren for «Flytt til».
-- `Kildekode/FileMove.swift` flytter filer og husker de fem sist brukte målmappene. Flytting skal aldri overskrive. Ved navnekollisjon får objektet et nummer.
+- `Kildekode/FinderExtension.swift` bygger Finder-menyen og viser navnedialogen for Excel. «Velg mappe …» åpner hovedappen med `nyfil://flytt?sti=…`, fordi en sandkasset Finder-utvidelse ikke får vise NSOpenPanel.
+- `Kildekode/FileMove.swift` flytter filer og husker de fem sist brukte målmappene i `~/Library/Application Support/NyFil/nylige-mapper.json`, som både appen og utvidelsen bruker. Flytting skal aldri overskrive. Ved navnekollisjon får objektet et nummer.
 - `Kildekode/FileCreation.swift` oppretter og gir nytt navn til filer. Ved opprettelse får duplikater et nummer. Navnebytte skal bevare filinnholdet og aldri overskrive en eksisterende fil.
-- `Kildekode/Nyfil.swift` viser status og åpner innstillingene for Finder-utvidelser.
+- `Kildekode/Nyfil.swift` viser status og åpner innstillingene for Finder-utvidelser. Når appen åpnes med en flytte-URL, viser den mappevelgeren, flytter og avslutter uten å vise vinduet.
 - `Kildekode/build.sh` bygger appen og utvidelsen. `prepare.py` lager pakkemetadata og Office-maler. `Icon.swift` og `package_icon.py` lager appikonet.
 - `Bygg/` inneholder én mappe per versjon (`1.0`, `1.1`, `1.2`) for tilbakeføring. Når et testbygg er godkjent og installert, gi det versjonsnavnet og fjern eldre testbygg. `Testfiler/` inneholder testskriptene `Check.swift`, `RenameCheck.swift` og `MoveCheck.swift`, pluss lokale testresultater som ikke ligger i git.
 
 ## Nåværende oppførsel
 
-Kildekoden er versjon 1.2. Versjon 1.1 er installert i `/Applications/Nyfil.app`. Brukeren har bekreftet at Excel-dialogen fungerer i Finder. Dialogen åpnes etter opprettelse og markerer navnet. Enter bekrefter navnet. Esc beholder standardnavnet. Word- og tekstfiler opprettes direkte. App-ID-en er `no.nyfil.mac` og utvidelsens ID er `no.nyfil.mac.finder`.
+Versjon 1.2.1 er installert i `/Applications/Nyfil.app`. Brukeren har bekreftet at Excel-dialogen fungerer i Finder. Dialogen åpnes etter opprettelse og markerer navnet. Enter bekrefter navnet. Esc beholder standardnavnet. Word- og tekstfiler opprettes direkte. App-ID-en er `no.nyfil.mac` og utvidelsens ID er `no.nyfil.mac.finder`.
 
 ## Bygg og verifisering
 

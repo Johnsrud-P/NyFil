@@ -114,23 +114,17 @@ final class NyfilFinderExtension: FIFinderSync {
         move(controller.selectedItemURLs() ?? [], to: menuRecentFolders[sender.tag])
     }
 
+    /// Mappevelgeren vises av hovedappen, fordi utvidelsen ikke får vise NSOpenPanel.
     @objc private func moveToChosenFolder(_ sender: NSMenuItem) {
         let items = controller.selectedItemURLs() ?? []
         guard !items.isEmpty else { return }
-        DispatchQueue.main.async {
-            self.bringToFront()
-            let panel = NSOpenPanel()
-            panel.canChooseFiles = false
-            panel.canChooseDirectories = true
-            panel.canCreateDirectories = true
-            panel.allowsMultipleSelection = false
-            panel.prompt = "Flytt hit"
-            panel.message = items.count == 1
-                ? "Velg hvor «\(items[0].lastPathComponent)» skal flyttes."
-                : "Velg hvor de \(items.count) objektene skal flyttes."
-            panel.directoryURL = RecentFolders.load().first ?? items[0].deletingLastPathComponent()
-            guard panel.runModal() == .OK, let folder = panel.url else { return }
-            self.move(items, to: folder)
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-._~/"))
+        let query = items.compactMap {
+            $0.standardizedFileURL.path.addingPercentEncoding(withAllowedCharacters: allowed).map { "sti=\($0)" }
+        }.joined(separator: "&")
+        guard let url = URL(string: "nyfil://flytt?\(query)") else { return }
+        if !NSWorkspace.shared.open(url) {
+            logger.error("Kunne ikke åpne NyFil for å velge mappe.")
         }
     }
 

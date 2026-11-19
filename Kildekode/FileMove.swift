@@ -72,22 +72,47 @@ enum FileMover {
     }
 }
 
+/// De sist brukte målmappene. Lagres i en fil i den ekte hjemmemappen, slik at både
+/// hovedappen og den sandkassede Finder-utvidelsen leser og skriver samme liste.
 enum RecentFolders {
-    private static let key = "nyligeMapper"
+    private static let legacyKey = "nyligeMapper"
     private static let limit = 5
 
+    static var storeURL: URL {
+        var home = NSHomeDirectory()
+        if let account = getpwuid(getuid()), let dir = account.pointee.pw_dir {
+            home = String(cString: dir)
+        }
+        return URL(fileURLWithPath: home, isDirectory: true)
+            .appendingPathComponent("Library/Application Support/NyFil/nylige-mapper.json")
+    }
+
+    private static func storedPaths() -> [String] {
+        if let data = try? Data(contentsOf: storeURL),
+           let paths = try? JSONDecoder().decode([String].self, from: data) {
+            return paths
+        }
+        // Liste fra versjon 1.2, lagret i utvidelsens egne innstillinger.
+        return UserDefaults.standard.stringArray(forKey: legacyKey) ?? []
+    }
+
     static func load() -> [URL] {
-        let paths = UserDefaults.standard.stringArray(forKey: key) ?? []
-        return paths.map { URL(fileURLWithPath: $0, isDirectory: true) }.filter {
+        storedPaths().map { URL(fileURLWithPath: $0, isDirectory: true) }.filter {
             var isDirectory: ObjCBool = false
             return FileManager.default.fileExists(atPath: $0.path, isDirectory: &isDirectory) && isDirectory.boolValue
         }
     }
 
     static func remember(_ folder: URL) {
-        var paths = UserDefaults.standard.stringArray(forKey: key) ?? []
+        var paths = storedPaths()
         paths.removeAll { $0 == folder.path }
         paths.insert(folder.path, at: 0)
-        UserDefaults.standard.set(Array(paths.prefix(limit)), forKey: key)
+        do {
+            try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(),
+                                                    withIntermediateDirectories: true)
+            try JSONEncoder().encode(Array(paths.prefix(limit))).write(to: storeURL, options: .atomic)
+        } catch {
+            UserDefaults.standard.set(Array(paths.prefix(limit)), forKey: legacyKey)
+        }
     }
 }
