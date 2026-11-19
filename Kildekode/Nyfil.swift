@@ -33,7 +33,7 @@ private struct SetupView: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 Text(enabled
-                     ? "Høyreklikk i en mappe i Finder og velg Ny fil. Høyreklikk på filer for å flytte dem eller kopiere stien."
+                     ? "Høyreklikk i en mappe eller på filer i Finder og velg NyFil."
                      : "Åpne innstillingene for Finder-utvidelser og slå på NyFil.")
                     .font(.body)
                     .fixedSize(horizontal: false, vertical: true)

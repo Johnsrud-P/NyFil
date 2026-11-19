@@ -26,26 +26,33 @@ final class NyfilFinderExtension: FIFinderSync {
 
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {
         guard let target = controller.targetedURL(), target.isFileURL else { return nil }
-        let menu = NSMenu()
+        let options = NSMenu(title: "NyFil")
 
         switch menuKind {
         case .contextualMenuForContainer:
-            menu.addItem(newFileItem())
-            menu.addItem(copyPathItem(count: 1))
+            addNewFileItems(to: options)
+            options.addItem(.separator())
+            options.addItem(copyPathItem(count: 1))
         case .contextualMenuForItems:
             let selected = controller.selectedItemURLs() ?? []
             guard !selected.isEmpty else { return nil }
-            if selected.count == 1, isPlainFolder(selected[0]) {
-                menu.addItem(newFileItem())
+            if selected.count == 1, isPlainFolder(target) {
+                addNewFileItems(to: options)
+                options.addItem(.separator())
             }
-            menu.addItem(moveItem(for: selected))
-            menu.addItem(copyPathItem(count: selected.count))
+            options.addItem(moveItem(for: selected))
+            options.addItem(copyPathItem(count: selected.count))
         case .contextualMenuForSidebar:
             guard isPlainFolder(target) else { return nil }
-            menu.addItem(newFileItem())
+            addNewFileItems(to: options)
         default:
             return nil
         }
+
+        let root = NSMenuItem(title: "NyFil", action: nil, keyEquivalent: "")
+        root.submenu = options
+        let menu = NSMenu()
+        menu.addItem(root)
         return menu
     }
 
@@ -54,17 +61,13 @@ final class NyfilFinderExtension: FIFinderSync {
         return values?.isDirectory == true && values?.isPackage != true
     }
 
-    private func newFileItem() -> NSMenuItem {
-        let newFile = NSMenuItem(title: "Ny fil", action: nil, keyEquivalent: "")
-        let options = NSMenu(title: "Ny fil")
+    private func addNewFileItems(to menu: NSMenu) {
         for kind in FileKind.allCases {
             let item = NSMenuItem(title: kind.title, action: #selector(createFile(_:)), keyEquivalent: "")
             item.target = self
             item.tag = kind.rawValue
-            options.addItem(item)
+            menu.addItem(item)
         }
-        newFile.submenu = options
-        return newFile
     }
 
     private func copyPathItem(count: Int) -> NSMenuItem {

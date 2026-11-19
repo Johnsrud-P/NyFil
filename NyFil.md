@@ -1,6 +1,6 @@
 # NyFil
 
-NyFil er en lokal macOS-app med en Finder Sync-utvidelse. Høyreklikk i en mappe i Finder og velg **Ny fil** for å opprette en tom Excel-arbeidsbok (.xlsx), et Word-dokument (.docx), en PowerPoint-presentasjon (.pptx) eller en tekstfil (.txt). Høyreklikk på filer eller mapper og velg **Flytt til** eller **Kopier sti**. Appen og Finder-menyen bruker norsk bokmål. Visningsnavnet er «NyFil», men filnavn, kjørbare filer og ID-er heter fortsatt `Nyfil`.
+NyFil er en lokal macOS-app med en Finder Sync-utvidelse. Høyreklikk i Finder og velg **NyFil**. Alle valg ligger samlet der. I en mappe kan du opprette en tom Excel-arbeidsbok (.xlsx), et Word-dokument (.docx), en PowerPoint-presentasjon (.pptx) eller en tekstfil (.txt). Nederst i samme meny ligger **Flytt til** (for markerte filer og mapper) og **Kopier sti**. Appen og Finder-menyen bruker norsk bokmål. Visningsnavnet er «NyFil», men filnavn, kjørbare filer og ID-er heter fortsatt `Nyfil`.
 
 ## Prosjektfiler
 
