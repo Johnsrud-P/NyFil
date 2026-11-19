@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Bygg og pakker (genereres av build.sh)
+Bygg/
+Utgivelser/
+
+# Testresultater og kompilerte testskript
+Testfiler/*
+!Testfiler/*.swift
