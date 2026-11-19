@@ -5,6 +5,11 @@ src="$(cd "$(dirname "$0")" && pwd)"
 app="$1"
 python_runtime="$2"
 extension="$app/Contents/PlugIns/NyfilFinder.appex"
+
+# Ett felles kompilatormellomlager i prosjektet. Det gjenbrukes av alle bygg,
+# så det hoper seg ikke opp. Mappen kan trygt slettes og lages på nytt.
+export CLANG_MODULE_CACHE_PATH="$(dirname "$src")/.cache/ModuleCache"
+mkdir -p "$CLANG_MODULE_CACHE_PATH"
 "$python_runtime" "$src/prepare.py" "$app"
 xcrun swift "$src/Icon.swift" "$(dirname "$app")/Nyfil.iconset"
 "$python_runtime" "$src/package_icon.py" "$(dirname "$app")/Nyfil.iconset" "$app/Contents/Resources/Nyfil.icns"

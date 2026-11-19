@@ -11,3 +11,6 @@ Testfiler/*
 
 # Python-miljø for bygget
 .venv/
+
+# Felles kompilatormellomlager
+.cache/
