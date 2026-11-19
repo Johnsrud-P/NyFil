@@ -5,7 +5,7 @@ import SwiftUI
 @main
 struct NyfilApp: App {
     var body: some Scene {
-        Window("Nyfil", id: "nyfil") {
+        Window("NyFil", id: "nyfil") {
             SetupView()
         }
         .windowResizability(.contentSize)
@@ -23,7 +23,7 @@ private struct SetupView: View {
                     .frame(width: 58, height: 58)
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Nyfil")
+                    Text("NyFil")
                         .font(.system(size: 27, weight: .semibold))
                     Label(enabled ? "Finder-utvidelsen er aktiv" : "Finder-utvidelsen må aktiveres",
                           systemImage: enabled ? "checkmark.circle.fill" : "circle")
@@ -33,11 +33,11 @@ private struct SetupView: View {
 
             VStack(alignment: .leading, spacing: 10) {
                 Text(enabled
-                     ? "Høyreklikk på et tomt område i en mappe i Finder og velg Ny fil."
-                     : "Åpne innstillingene for Finder-utvidelser og slå på Nyfil.")
+                     ? "Høyreklikk i en mappe i Finder og velg Ny fil. Høyreklikk på filer for å flytte dem eller kopiere stien."
+                     : "Åpne innstillingene for Finder-utvidelser og slå på NyFil.")
                     .font(.body)
                     .fixedSize(horizontal: false, vertical: true)
-                Text("Excel (.xlsx)  ·  Word (.docx)  ·  Tekst (.txt)")
+                Text("Excel  ·  Word  ·  PowerPoint  ·  Tekst  ·  Flytt til  ·  Kopier sti")
                     .foregroundStyle(.secondary)
             }
 

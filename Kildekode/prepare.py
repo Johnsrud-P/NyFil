@@ -4,6 +4,8 @@ import sys
 
 from docx import Document
 from openpyxl import Workbook
+from pptx import Presentation
+from pptx.util import Inches
 
 
 app = Path(sys.argv[1]) / "Contents"
@@ -15,10 +17,10 @@ for directory in (app / "MacOS", app / "Resources", extension / "MacOS", resourc
 
 base = {
     "CFBundleDevelopmentRegion": "nb",
-    "CFBundleShortVersionString": "1.1",
-    "CFBundleVersion": "2",
-    "CFBundleName": "Nyfil",
-    "CFBundleDisplayName": "Nyfil",
+    "CFBundleShortVersionString": "1.2",
+    "CFBundleVersion": "3",
+    "CFBundleName": "NyFil",
+    "CFBundleDisplayName": "NyFil",
     "LSMinimumSystemVersion": "13.0",
 }
 
@@ -29,9 +31,9 @@ with (app / "Info.plist").open("wb") as plist:
         "CFBundlePackageType": "APPL",
         "CFBundleIconFile": "Nyfil",
         "LSApplicationCategoryType": "public.app-category.utilities",
-        "NSDocumentsFolderUsageDescription": "Nyfil oppretter filer i Dokumenter når du velger Ny fil i Finder.",
-        "NSDownloadsFolderUsageDescription": "Nyfil oppretter filer i Nedlastinger når du velger Ny fil i Finder.",
-        "NSDesktopFolderUsageDescription": "Nyfil oppretter filer på Skrivebord når du velger Ny fil i Finder.",
+        "NSDocumentsFolderUsageDescription": "NyFil oppretter og flytter filer i Dokumenter når du bruker NyFil i Finder.",
+        "NSDownloadsFolderUsageDescription": "NyFil oppretter og flytter filer i Nedlastinger når du bruker NyFil i Finder.",
+        "NSDesktopFolderUsageDescription": "NyFil oppretter og flytter filer på Skrivebord når du bruker NyFil i Finder.",
     }, plist)
 
 with (extension / "Info.plist").open("wb") as plist:
@@ -60,3 +62,9 @@ document.core_properties.last_modified_by = ""
 document.core_properties.comments = ""
 document.core_properties.title = ""
 document.save(resources / "Tom.docx")
+presentation = Presentation()
+presentation.slide_width = Inches(13.333)
+presentation.slide_height = Inches(7.5)
+for field in ("author", "last_modified_by", "comments", "title"):
+    setattr(presentation.core_properties, field, "")
+presentation.save(resources / "Tom.pptx")

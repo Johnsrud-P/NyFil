@@ -10,12 +10,13 @@ enum FileNameError: LocalizedError {
 }
 
 enum FileKind: Int, CaseIterable {
-    case excel, word, text
+    case excel, word, powerPoint, text
 
     var title: String {
         switch self {
         case .excel: "Excel-arbeidsbok (.xlsx)"
         case .word: "Word-dokument (.docx)"
+        case .powerPoint: "PowerPoint-presentasjon (.pptx)"
         case .text: "Tekstfil (.txt)"
         }
     }
@@ -24,6 +25,7 @@ enum FileKind: Int, CaseIterable {
         switch self {
         case .excel: "Ny Excel-arbeidsbok"
         case .word: "Nytt Word-dokument"
+        case .powerPoint: "Ny PowerPoint-presentasjon"
         case .text: "Ny tekstfil"
         }
     }
@@ -32,6 +34,7 @@ enum FileKind: Int, CaseIterable {
         switch self {
         case .excel: "xlsx"
         case .word: "docx"
+        case .powerPoint: "pptx"
         case .text: "txt"
         }
     }

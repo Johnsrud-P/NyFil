@@ -8,3 +8,6 @@ Utgivelser/
 # Testresultater og kompilerte testskript
 Testfiler/*
 !Testfiler/*.swift
+
+# Python-miljø for bygget
+.venv/

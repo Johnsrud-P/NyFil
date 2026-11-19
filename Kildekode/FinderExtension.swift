@@ -21,20 +21,40 @@ final class NyfilFinderExtension: FIFinderSync {
         logger.info("Nyfil er lastet i Finder.")
     }
 
+    /// Mappene som ble vist i «Flytt til» sist menyen ble bygget. Menyvalgets tag peker hit.
+    private var menuRecentFolders: [URL] = []
+
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {
         guard let target = controller.targetedURL(), target.isFileURL else { return nil }
+        let menu = NSMenu()
+
         switch menuKind {
         case .contextualMenuForContainer:
-            break
-        case .contextualMenuForItems, .contextualMenuForSidebar:
-            guard (controller.selectedItemURLs()?.count ?? 0) <= 1,
-                  let values = try? target.resourceValues(forKeys: [.isDirectoryKey, .isPackageKey]),
-                  values.isDirectory == true, values.isPackage != true else { return nil }
+            menu.addItem(newFileItem())
+            menu.addItem(copyPathItem(count: 1))
+        case .contextualMenuForItems:
+            let selected = controller.selectedItemURLs() ?? []
+            guard !selected.isEmpty else { return nil }
+            if selected.count == 1, isPlainFolder(selected[0]) {
+                menu.addItem(newFileItem())
+            }
+            menu.addItem(moveItem(for: selected))
+            menu.addItem(copyPathItem(count: selected.count))
+        case .contextualMenuForSidebar:
+            guard isPlainFolder(target) else { return nil }
+            menu.addItem(newFileItem())
         default:
             return nil
         }
+        return menu
+    }
 
-        let menu = NSMenu()
+    private func isPlainFolder(_ url: URL) -> Bool {
+        let values = try? url.resourceValues(forKeys: [.isDirectoryKey, .isPackageKey])
+        return values?.isDirectory == true && values?.isPackage != true
+    }
+
+    private func newFileItem() -> NSMenuItem {
         let newFile = NSMenuItem(title: "Ny fil", action: nil, keyEquivalent: "")
         let options = NSMenu(title: "Ny fil")
         for kind in FileKind.allCases {
@@ -44,8 +64,102 @@ final class NyfilFinderExtension: FIFinderSync {
             options.addItem(item)
         }
         newFile.submenu = options
-        menu.addItem(newFile)
-        return menu
+        return newFile
+    }
+
+    private func copyPathItem(count: Int) -> NSMenuItem {
+        let item = NSMenuItem(title: count > 1 ? "Kopier stier" : "Kopier sti",
+                              action: #selector(copyPath(_:)), keyEquivalent: "")
+        item.target = self
+        return item
+    }
+
+    private func moveItem(for selected: [URL]) -> NSMenuItem {
+        let parents = Set(selected.map { $0.standardizedFileURL.deletingLastPathComponent().path })
+        menuRecentFolders = RecentFolders.load().filter { !(parents.count == 1 && parents.contains($0.path)) }
+
+        let move = NSMenuItem(title: "Flytt til", action: nil, keyEquivalent: "")
+        let options = NSMenu(title: "Flytt til")
+        for (index, folder) in menuRecentFolders.enumerated() {
+            let item = NSMenuItem(title: folder.lastPathComponent, action: #selector(moveToRecent(_:)), keyEquivalent: "")
+            item.target = self
+            item.tag = index
+            let icon = NSWorkspace.shared.icon(forFile: folder.path)
+            icon.size = NSSize(width: 16, height: 16)
+            item.image = icon
+            options.addItem(item)
+        }
+        if !menuRecentFolders.isEmpty { options.addItem(.separator()) }
+        let choose = NSMenuItem(title: "Velg mappe …", action: #selector(moveToChosenFolder(_:)), keyEquivalent: "")
+        choose.target = self
+        options.addItem(choose)
+        move.submenu = options
+        return move
+    }
+
+    @objc private func copyPath(_ sender: NSMenuItem) {
+        var urls = controller.selectedItemURLs() ?? []
+        if urls.isEmpty, let target = controller.targetedURL() { urls = [target] }
+        guard !urls.isEmpty else { return }
+        let text = urls.map { $0.standardizedFileURL.path }.joined(separator: "\n")
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+    }
+
+    @objc private func moveToRecent(_ sender: NSMenuItem) {
+        guard menuRecentFolders.indices.contains(sender.tag) else { return }
+        move(controller.selectedItemURLs() ?? [], to: menuRecentFolders[sender.tag])
+    }
+
+    @objc private func moveToChosenFolder(_ sender: NSMenuItem) {
+        let items = controller.selectedItemURLs() ?? []
+        guard !items.isEmpty else { return }
+        DispatchQueue.main.async {
+            self.bringToFront()
+            let panel = NSOpenPanel()
+            panel.canChooseFiles = false
+            panel.canChooseDirectories = true
+            panel.canCreateDirectories = true
+            panel.allowsMultipleSelection = false
+            panel.prompt = "Flytt hit"
+            panel.message = items.count == 1
+                ? "Velg hvor «\(items[0].lastPathComponent)» skal flyttes."
+                : "Velg hvor de \(items.count) objektene skal flyttes."
+            panel.directoryURL = RecentFolders.load().first ?? items[0].deletingLastPathComponent()
+            guard panel.runModal() == .OK, let folder = panel.url else { return }
+            self.move(items, to: folder)
+        }
+    }
+
+    private func move(_ items: [URL], to folder: URL) {
+        guard !items.isEmpty else { return }
+        do {
+            _ = try FileMover.move(items, to: folder)
+            RecentFolders.remember(folder.standardizedFileURL)
+        } catch {
+            logger.error("Kunne ikke flytte: \(error.localizedDescription, privacy: .public)")
+            showError("NyFil kunne ikke flytte", error)
+        }
+    }
+
+    private func bringToFront() {
+        let app = NSApplication.shared
+        if app.activationPolicy() == .prohibited {
+            app.setActivationPolicy(.accessory)
+        }
+        app.activate(ignoringOtherApps: true)
+    }
+
+    private func showError(_ title: String, _ error: Error) {
+        DispatchQueue.main.async {
+            let alert = NSAlert()
+            alert.alertStyle = .warning
+            alert.messageText = title
+            alert.informativeText = error.localizedDescription
+            alert.addButton(withTitle: "OK")
+            self.bringToFront()
+            alert.runModal()
+        }
     }
 
     @objc private func createFile(_ sender: NSMenuItem) {
@@ -64,13 +178,7 @@ final class NyfilFinderExtension: FIFinderSync {
             }
         } catch {
             logger.error("Kunne ikke opprette fil: \(error.localizedDescription, privacy: .public)")
-            let alert = NSAlert()
-            alert.alertStyle = .warning
-            alert.messageText = "Nyfil kunne ikke opprette filen"
-            alert.informativeText = error.localizedDescription
-            alert.addButton(withTitle: "OK")
-            NSApp?.activate(ignoringOtherApps: true)
-            alert.runModal()
+            showError("NyFil kunne ikke opprette filen", error)
         }
     }
 

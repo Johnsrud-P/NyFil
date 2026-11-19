@@ -14,7 +14,7 @@ xcrun swiftc -O -parse-as-library -target "$target" -module-name Nyfil \
     "$src/Nyfil.swift" -o "$app/Contents/MacOS/Nyfil"
 xcrun swiftc -O -parse-as-library -target "$target" -module-name NyfilFinder \
     -Xlinker -e -Xlinker _NSExtensionMain \
-    "$src/FinderExtension.swift" "$src/FileCreation.swift" -o "$extension/Contents/MacOS/NyfilFinder"
+    "$src/FinderExtension.swift" "$src/FileCreation.swift" "$src/FileMove.swift" -o "$extension/Contents/MacOS/NyfilFinder"
 
 codesign --force --sign - --timestamp=none --entitlements "$(dirname "$app")/NyfilFinder.entitlements" "$extension"
 codesign --force --sign - --timestamp=none "$app"
