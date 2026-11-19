@@ -17,7 +17,7 @@ Kildekoden er versjon 1.2. Versjon 1.1 er installert i `/Applications/Nyfil.app`
 
 ## Bygg og verifisering
 
-Bygget trenger Xcode Command Line Tools og Python med pakkene `python-docx`, `openpyxl` og `python-pptx`. Prosjektet har et eget miljø i `.venv/` (`python3 -m venv .venv && .venv/bin/pip install python-docx openpyxl python-pptx`). Skriptet bygger for Macens arkitektur med macOS 13 som minsteversjon. Det signerer utvidelsen og appen lokalt og kontrollerer signaturene.
+Bygget trenger Xcode Command Line Tools og Python med pakkene `python-docx`, `openpyxl` og `python-pptx`. Prosjektet har et eget miljø i `.venv/` (`python3 -m venv .venv && .venv/bin/pip install python-docx openpyxl python-pptx`). Skriptet bygger universelt (arm64 og x86_64) med macOS 13 som minsteversjon. Det signerer utvidelsen og appen lokalt og kontrollerer signaturene.
 
 Fra prosjektroten, bruk en Python-tolk som har begge pakkene. Sett `NYFIL_PYTHON` til full sti hvis `python3` ikke har dem. Bygg i en ny mappe slik at eksisterende bygg kan brukes til sammenligning og tilbakeføring. `build.sh` bruker ett felles kompilatormellomlager i `.cache/ModuleCache` (rundt 280 MB) som gjenbrukes av alle bygg. Ikke lag egne mellomlagre per bygg.
 

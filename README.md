@@ -8,7 +8,26 @@ NyFil er en liten macOS-app som legger til et **NyFil**-valg i høyreklikkmenyen
 
 Appen og menyene er på norsk bokmål. Den krever macOS 13 eller nyere.
 
-## Bygg
+## Last ned og installer
+
+1. Last ned `NyFil-<versjon>.zip` fra [siste utgivelse](https://github.com/Johnsrud-P/NyFil/releases/latest) og pakk den ut.
+2. Flytt `Nyfil.app` til **Programmer**.
+3. Åpne appen. Fordi appen ikke er notarisert av Apple, stopper macOS den første gang:
+   - Trykk **Ferdig** i advarselen.
+   - Gå til **Systeminnstillinger → Personvern og sikkerhet**, bla ned og trykk **Åpne likevel** ved NyFil.
+   - Åpne appen igjen og bekreft.
+4. Trykk **Åpne innstillinger for Finder-utvidelser** i appen og slå på NyFil.
+5. Høyreklikk i en mappe i Finder og velg **NyFil**.
+
+Appen virker på både Apple Silicon og Intel.
+
+Alternativt kan du fjerne advarselen fra Terminal før du åpner appen:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/Nyfil.app
+```
+
+## Bygg selv
 
 Du trenger Xcode Command Line Tools og Python 3.
 
@@ -26,3 +45,7 @@ Appen signeres lokalt (ad hoc) og er ikke notarisert av Apple.
 ## Tester
 
 Testskriptene i `Testfiler/` sjekker filopprettelse, navnebytte og flytting. Se `NyFil.md` for detaljer om prosjektet.
+
+## Lisens
+
+MIT. Se [LICENSE](LICENSE).
